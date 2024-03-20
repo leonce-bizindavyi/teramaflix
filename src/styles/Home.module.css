@@ -1,0 +1,10 @@
+.filmcontainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(250px, auto));
+    border-top: 3px solid #3a82f5;
+    padding-top: 30px;
+    
+}
+.filmcontainer .videocontainer {
+    width: 100%;
+}

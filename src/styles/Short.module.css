@@ -1,0 +1,45 @@
+.container.new {
+    display: grid;
+    place-items: center;
+    /* scroll-snap-type: y mandatory; */
+     
+} 
+.videocontainer {
+    overflow: auto;
+    height: 85vh;
+    scroll-snap-type: y mandatory;
+}
+.videocontainer::-webkit-scrollbar{
+    display: none ;
+}
+.videocontainer {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.video {
+    scroll-snap-align : end;
+}
+.channel {
+    /* background-color: rgba(0, 0, 0, 0.2); */
+    background: linear-gradient(rgba(0,0,0,0.3) , rgba(255,255,255,0.1)  );
+}
+.buttons div , .closer {
+    margin-bottom: auto ;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+}
+.buttons div span {
+    color: #fff;
+    font-size: small;
+}
+.buttons svg , .volumeBtn svg, .closer {
+    color: #fff;
+    background-color: rgba(255,255,255,0.4) ;
+    border-radius: 20px;
+    padding: 8px;
+    cursor: pointer;
+
+}

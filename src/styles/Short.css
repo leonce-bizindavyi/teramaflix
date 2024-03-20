@@ -1,0 +1,58 @@
+
+.buttons div , .closer {
+    margin-bottom: auto ;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+}
+.buttons div span {
+    color: #fff;
+    font-size: small;
+}
+.buttons svg , .volumeBtn svg, .closer {
+    color: #fff;
+    background-color: rgba(255,255,255,0.4) ;
+    border-radius: 20px;
+    padding: 8px;
+    cursor: pointer;
+
+}
+
+
+
+/* ------------------------------------------------------ */
+
+@media (min-width: 768px) {
+    .container {
+        margin-left: 100px;
+    }
+    
+    .aside {
+        width: 250px;
+        height: 100vh;
+        position: fixed;
+        left: 0%;
+    }
+    .aside.active {
+        left: 0%;
+    }
+}
+@media (max-width: 768px) {
+    .container {
+        margin-left: 0px;
+    }
+    .aside {
+        top: 8.5%;
+        width: 250px;
+        height: 100vh;
+        position: fixed;
+    }
+    .aside.active {
+        top: 8.5%;
+        left: -25%;
+    }
+
+  
+}
