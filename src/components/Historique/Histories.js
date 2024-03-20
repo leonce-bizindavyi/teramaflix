@@ -2,7 +2,6 @@ import React,{useState,useEffect,useContext} from 'react'
 import Result from '../Results/Result'
 import { SessionContext } from '../context/Auth'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import VideoPlayer from '../Exoclick/VideoPlayer'
 
 function Histories() {
   const auto = useContext(SessionContext)
