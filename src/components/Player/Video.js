@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePeriod } from '../Hooks/usePeriod'
@@ -12,7 +12,62 @@ function truncateText(text, maxLength) {
 }
 
 function Video({ video }) {
+  const [online, setOnline] = useState(true);
   const period = usePeriod(video.Created_at)
+  const [thumbnailUrl, setThumbnailUrl] = useState(null);
+  const [profBlobUrl, setProfBlobUrl] = useState(null);
+
+  useEffect(()=>{
+    const handleOnlineStatusChange = () =>{
+      setOnline(navigator.onLine);
+    };
+    window.addEventListener('online',handleOnlineStatusChange);
+    window.addEventListener('offline',handleOnlineStatusChange);
+    setOnline(navigator.onLine);
+    return () =>{
+      window.removeEventListener('online' ,handleOnlineStatusChange);
+      window.removeEventListener('offline',handleOnlineStatusChange);
+    }
+
+  },[]);
+  useEffect(() => {
+    const getThumbnailFromCache = async () => {
+      try {
+        const cache = await caches.open('downloaded-videos-cache');
+        const response = await cache.match(`/Thumbnails/${video.Image}`);
+        if (response) {
+          const blob = await response.blob();
+          setThumbnailUrl(URL.createObjectURL(blob));
+        }
+      } catch (error) {
+        console.error('Error fetching thumbnail from cache:', error);
+      }
+    };
+
+    if (!online && video && video.Image) {
+      getThumbnailFromCache();
+    }
+    const fetchProfile = async (photo) => {
+      try {
+        if (photo && !online) {
+          const cache = await caches.open('mon-site-logo')
+          const response = await cache.match(`/Thumbnails/${photo}`);
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          setProfBlobUrl(blobUrl);
+        } else {
+          const cache = await caches.open('mon-site-logo');
+          const response =await cache.match('/img/logo.png');
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          setProfBlobUrl(blobUrl);
+        }
+      } catch (error) {
+        console.error('Error fetching video:', error);
+      }
+    };
+    fetchProfile(video.Photo)
+  }, [online, video]);
   return (
     <>
       <div className="dark:bg-medium lg:h-[115px]   sm:h-[450px] w-full  overflow-hidden flex lg:flex-row flex-col lg:justify-center lg:items-start lg:space-x-2">
@@ -20,11 +75,11 @@ function Video({ video }) {
           {
             video.Short == 1 ?
               <Link href={`/short`} style={{ textDecolation: "none" }}>
-                <ImageComp src={video.Image} w={800} h={800} a={'video'} />
+                <ImageComp src={thumbnailUrl ?  `${thumbnailUrl}` : video.Image} w={800} h={800} a={'video'} />
               </Link>
               :
               <Link href={`/Watch?v=${video.uniid}`} style={{ textDecolation: "none" }}>
-              <ImageComp src={video.Image} w={800} h={800} a={'video'} />
+              <ImageComp src={thumbnailUrl ?  `${thumbnailUrl}` : video.Image} w={800} h={800} a={'video'} />
               </Link>
           }
         </div>
@@ -36,13 +91,13 @@ function Video({ video }) {
                 video.Photo ?
                   <Image width={500} height={500} alt='profile'
                     className=" w-10  h-10 my-1 ml-15 rounded-full "
-                    src={`${process.env.NEXT_PUBLIC_URL}/Thumbnails/${video.Photo}`}
+                    src={online || !profBlobUrl ? `${process.env.NEXT_PUBLIC_URL}/Thumbnails/${video.Photo}`: profBlobUrl}
                     priority={true} placeholder='blur'
                     blurDataURL="data:image/png;base64,...(base64-encoded image data)" />
                   :
                   <Image width={500} height={500} alt='profile'
                     className=" w-10  h-10 my-1 ml-15 rounded-full "
-                    src={`/img/logo.png`}
+                    src={online || !profBlobUrl ?`/img/logo.png`:profBlobUrl}
                     priority={true} placeholder='blur'
                     blurDataURL="data:image/png;base64,...(base64-encoded image data)" />
               }

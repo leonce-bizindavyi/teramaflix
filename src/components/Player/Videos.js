@@ -9,6 +9,21 @@ function Videos() {
   const router = useRouter()
   const [videos, setVideos] = useState([]);
   const [hasMore,setHasMore]=useState(true)
+  const [online, setOnline] = useState(true);
+
+  useEffect(()=>{
+    const handleOnlineStatusChange = () =>{
+      setOnline(navigator.onLine);
+    };
+    window.addEventListener('online',handleOnlineStatusChange);
+    window.addEventListener('offline',handleOnlineStatusChange);
+    setOnline(navigator.onLine);
+    return () =>{
+      window.removeEventListener('online' ,handleOnlineStatusChange);
+      window.removeEventListener('offline',handleOnlineStatusChange);
+    }
+
+  },[]);
   const getMoreVideos=async()=>{
     const post = router.query.v
     const user = auto.session
@@ -26,30 +41,50 @@ function Videos() {
     
   }
   useEffect(() => {
-    const fetchVideos = async (post,user) => {
-      const response = await fetch(`/api/posts/videos/${post}/0/7/${user} `);
-      const data = await response.json();
-      if(data.length !== 0){
-        setVideos(data);
+    if(online){
+      const fetchVideos = async (post,user) => {
+        const response = await fetch(`/api/posts/videos/${post}/0/7/${user} `);
+        const data = await response.json();
+        if(data.length !== 0){
+          setVideos(data);
+        }
+      };
+      if(router.query.v && auto.session){
+        if(auto.session === 'unlogged'){
+          fetchVideos(router.query.v,0)
+        }else{
+          fetchVideos(router.query.v,auto.session.ID)
+        }
+        
       }
-    };
-    if(router.query.v && auto.session){
-      if(auto.session === 'unlogged'){
-        fetchVideos(router.query.v,0)
-      }else{
-        fetchVideos(router.query.v,auto.session.ID)
+    }else{
+      const cacheName = 'downloaded-videos-cache';
+      const getCachedVideos= async () => {
+        try {
+        const cache = await caches.open(cacheName);
+        const keys = await cache.keys();
+        const videoUrls = Array.from(keys).filter((key) =>key.url.endsWith('_data'));
+        const videos = await Promise.all(videoUrls.map(async (url) => {
+          const response = await cache.match(url);
+          const videoInfo = JSON.parse(await response.text());
+          return videoInfo
+        }));
+        setVideos([...videos].reverse())
+      } catch (error) {
+          console.error('Error loading cached videos:', error);
+        }
       }
-      
+      getCachedVideos()
     }
-  }, [router,auto])
+  }, [router,auto,online])
   if(videos.length === undefined) return null
   return (
     <>
     <InfiniteScroll
     dataLength={videos.length}
-    next={getMoreVideos}
+    next={online && getMoreVideos}
     hasMore={hasMore}
-    loader={<h4>Loading...</h4>}
+    loader={online && <h4>Loading...</h4>}
     endMessage={
       <p style={{textAlign:"center"}}><b>You have seen it all</b></p>
     }>      

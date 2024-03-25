@@ -14,6 +14,12 @@ function Videos() {
   const [hasMore, setHasMore] = useState(true)
 
   useEffect(() => {
+    const fetchVideos = async (user) => {
+      const response = await fetch(`/api/posts/${user}/0/4`)
+      const data = await response.json()
+      if (data[0]) setVideos(data)
+      if (data) setLoad(true)
+    }
     if (auto.session) {
       if (auto.session === 'unlogged') {
         fetchVideos(0)
@@ -22,12 +28,7 @@ function Videos() {
       }
     }
   }, [auto])
-  const fetchVideos = async (user) => {
-    const response = await fetch(`/api/posts/${user}/0/6`)
-    const data = await response.json()
-    if (data[0]) setVideos(data)
-    if (data) setLoad(true)
-  }
+  
 
   if (videos == null) {
     setLoad(false)

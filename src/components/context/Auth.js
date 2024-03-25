@@ -4,33 +4,32 @@ import jwt from 'jsonwebtoken';
 const SessionContext = React.createContext();
 
 function SessionProvider(props) {
-    const [session, setSession] = useState()
-  useEffect(() => {
-  async function decodeJWT(token) {
-    try {
-      if(token){
-        const decoded = jwt.decode(token);
-        return setSession(decoded);
-      }else{
-      return setSession('unlogged');
-      }
-    } catch (error) {
-      console.error('Error decoding JWT:', error);
-      return setSession('unlogged');
-    }
-  }
+  const [session, setSession] = useState();
+  const shouldFetch = typeof window !== 'undefined' && localStorage.getItem('token');
 
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('token');
+  useEffect(() => {
+    async function decodeJWT(token) {
+      try {
+        if (token) {
+          const decoded = jwt.decode(token);
+          return setSession(decoded);
+        } else {
+          return setSession('unlogged');
+        }
+      } catch (error) {
+        console.error('Error decoding JWT:', error);
+        return setSession('unlogged');
+      }
+    }
+
+    if (shouldFetch) {
+      const token = localStorage.getItem('token');
       decodeJWT(token);
-  }
-}, [typeof window !== 'undefined' && localStorage.getItem('token')]);
+    }
+  }, [shouldFetch]); // Use the simpler variable in the dependency array
 
   return (
-    <SessionContext.Provider
-      value={{
-        session
-      }}>
+    <SessionContext.Provider value={{ session }}>
       {props.children}
     </SessionContext.Provider>
   );

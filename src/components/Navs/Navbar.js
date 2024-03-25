@@ -24,11 +24,31 @@ function Navbar(props) {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifCounter, setNotifCounter] = useState(0);
   const [liste_notification, setliste] = useState([]);
-  const [profBlobUrl, setProfBlobUrl] = useState('/img/logo.png');
   const compoRef = useRef(null);
   const sideBarRef = useRef(null);
   const notifRef = useRef(null);
   const SearchInput2Ref = useRef(null);
+  const [profBlobUrl, setProfBlobUrl] = useState(null);
+  const [logo1, setLogo1] = useState(null)
+  const [logo2, setLogo2] = useState(null)
+  const [online, setOnline] = useState(true);
+
+  
+  useEffect(()=>{
+    const handleOnlineStatusChange = () =>{
+      setOnline(navigator.onLine);
+    };
+
+    window.addEventListener('online',handleOnlineStatusChange);
+    window.addEventListener('offline',handleOnlineStatusChange);
+    setOnline(navigator.onLine);
+    return () =>{
+      window.removeEventListener('online' ,handleOnlineStatusChange);
+      window.removeEventListener('offline',handleOnlineStatusChange);
+    }
+
+  },[]);
+
 
 
   const handleSideAll = () => {
@@ -97,26 +117,72 @@ function Navbar(props) {
       setIsNotificationOpen(false);
     }
   };
-
   useEffect(() => {
-    const available_notifications = async () => {
+    if(!online){
+      const fetchLogos = async () => {
+        try {
+          const cache1 = await caches.open('mon-site-logo');
+          const cache2 = await caches.open('mon-site-logo');
+          const resp1 = await cache1.match('/logo/TeramaFlixpic.png');
+          const resp2 =await cache2.match('/logo/TeramaFlixnam.png');
+          const blob1 = await resp1.blob();
+          const blob2 = await resp2.blob();
+          setLogo1(URL.createObjectURL(blob1))
+          setLogo2(URL.createObjectURL(blob2))
+        } catch (error) {
+          console.error('Error fetching video:', error);
+        }
+      };
+      fetchLogos()
+
+    }
+    const fetchProfile = async (photo) => {
       try {
-        const response = await fetch(`/api/notifications/${auto.session.ID}`);
-        if (response.ok) {
-          const data = await response.json();
-          setliste(data);
-          setNotifCounter(data.length);
+        if (photo && !online) {
+          const cache = await caches.open('mon-site-logo')
+          const response = await cache.match(`/Thumbnails/${photo}`);
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          setProfBlobUrl(blobUrl);
+        } else {
+          const cache = await caches.open('mon-site-logo');
+          const response =await cache.match('/img/logo.png');
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          setProfBlobUrl(blobUrl);
         }
       } catch (error) {
-        console.log("Error => " + error);
+        console.error('Error fetching video:', error);
       }
     };
-    available_notifications();
-    const interval = setInterval(() => {
+    if (auto.session) {
+      fetchProfile(auto.session.Photo)
+    }
+  
+  }, [auto,online])
+
+
+  useEffect(() => {
+    if(online){
+      const available_notifications = async () => {
+        try {
+          const response = await fetch(`/api/notifications/${auto.session.ID}`);
+          if (response.ok) {
+            const data = await response.json();
+            setliste(data);
+            setNotifCounter(data.length);
+          }
+        } catch (error) {
+          console.log("Error => " + error);
+        }
+      };
       available_notifications();
-    }, 60000);
-    return () => clearInterval(interval);
-  }, [auto]);
+      const interval = setInterval(() => {
+        available_notifications();
+      }, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [auto,online]);
 
   //useEffect pour cacher le box d'account en cliquant n'importe où dans le DOM
   useEffect(() => {
@@ -175,8 +241,8 @@ function Navbar(props) {
               </div>
 
               <div className="logo ml-4 flex-initial flex flex-col sm:flex-row sm:items-center sm:justify-start w-10 h-11 sm:w-64 sm:h-full items-center justify-center sm:static ml-/10 ">
-                <Link href="/"> <Image width={500} height={500} src={`/logo/TeramaFlixpic.png`} className=" w-8 h-8 sm:w-[2.8rem] sm:h-[2.8rem] my-1" alt="logo" /></Link>
-                <Link href="/"> <Image width={500} height={500} src={`/logo/TeramaFlixnam.png`} alt="logo" className=" hidden sm:block w-[4rem] h-[1rem] sm:w-[8rem] sm:h-[1rem] " /></Link>
+                <Link href="/"> <Image width={500} height={500} src={online || !logo1 ? '/logo/TeramaFlixpic.png': logo1 } className=" w-8 h-8 sm:w-[2.8rem] sm:h-[2.8rem] my-1" alt="logo" /></Link>
+                <Link href="/"> <Image width={500} height={500} src={online || !logo2 ? '/logo/TeramaFlixnam.png' : logo2} alt="logo" className=" hidden sm:block w-[4rem] h-[1rem] sm:w-[8rem] sm:h-[1rem] " /></Link>
               </div>
             </div>
             <div className="searche-here searchDiv sm:flex flex-1  sm:justify-center sm:items-center lg:w-64 lg:h-full max-w-max items-center justify-center mr-0 lg:mr-6 p-0">
@@ -193,9 +259,15 @@ function Navbar(props) {
               </button>
             </div> 
             {!auto.session || auto.session === "unlogged" ?
-              <div className="buttons  flex flex-initial sm:flex sm:items-center sm:justify-end items-center justify-end mr-4 w-full sm:w-64 h-full   ">
+            <>
+               
+              <div className="flex justify-end mr-8 mt-2 gap-x-[0.7rem] xs:gap-x-[0.5rem] sm:gap-x-[0.9rem] md:gap-x-[1rem] lg:gap-x-[1.5rem] w-[24rem] sm:w-[19.9rem] md:w-[18.5rem] h-[3rem] lg:w-[20.5rem] lg:h-[3rem] py-1">
+                <div>
+                <LightMode/>
+                </div>
                 <Link href='/login' className="bg-blue-500 text-white text-sm md:font-medium rounded-md  md:px-3 px-2 md:py-2 py-1 flex items-center justify-center hover:bg-blue-600">Login</Link>
               </div>
+              </>
               :
               <div className="flex mt-2 gap-x-[0.7rem] xs:gap-x-[0.5rem] sm:gap-x-[0.9rem] md:gap-x-[1rem] lg:gap-x-[1.5rem] w-[24rem] sm:w-[19.9rem] md:w-[18.5rem] h-[3rem] lg:w-[20.5rem] lg:h-[3rem] ">
                 <button onClick={handleSmsearch} id="searchBtn" className="dark:hover:bg-slate-600 hover:bg-gray-200 rounded-full w-[2.5rem] h-[2.5rem] md:w-[3rem] md:h-[3rem] lg:w-[2.8rem] lg:h-[2.8rem] visible md:invisible">
@@ -225,10 +297,10 @@ function Navbar(props) {
                 <button ref={compoRef} id="image" className="p-0 w-[2.5rem] h-[2.5rem] md:w-[3rem] md:h-[3rem] lg:w-[2.8rem] lg:h-[2.8rem] rounded-full ">
                   {auto.session.Photo ?
                     <Image width={500} height={500} className="w-full h-full rounded-full" title={`${auto.session.PageName}`}
-                      src={`${process.env.NEXT_PUBLIC_URL}/Thumbnails/${auto.session.Photo}`} alt='profile' onClick={() => handleAcPop()} />
+                      src={online || !profBlobUrl ? `${process.env.NEXT_PUBLIC_URL}/Thumbnails/${auto.session.Photo}`:profBlobUrl} alt='profile' onClick={() => handleAcPop()} />
                     :
                     <Image width={500} height={500} className="-full h-full rounded-full" title={`${auto.session.PageName}`}
-                      src={`/img/logo.png`} alt='profile' onClick={() => handleAcPop()} />
+                      src={online || !profBlobUrl ? "/img/logo.png":profBlobUrl} alt='profile' onClick={() => handleAcPop()} />
                   }
                 </button>
               </div>

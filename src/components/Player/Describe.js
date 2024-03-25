@@ -19,6 +19,24 @@ function Describe({ video }) {
   const [isCopied, setCopied] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
   const urlRef = React.useRef(null);
+  const [online, setOnline] = useState(true);
+  const [downloading, setDownloading] = useState(false);
+
+
+
+  useEffect(()=>{
+    const handleOnlineStatusChange = () =>{
+      setOnline(navigator.onLine);
+    };
+    window.addEventListener('online',handleOnlineStatusChange);
+    window.addEventListener('offline',handleOnlineStatusChange);
+    setOnline(navigator.onLine);
+    return () =>{
+      window.removeEventListener('online' ,handleOnlineStatusChange);
+      window.removeEventListener('offline',handleOnlineStatusChange);
+    }
+
+  },[]);
 
   // like the video begin
   // like clik
@@ -146,6 +164,58 @@ function Describe({ video }) {
   };
 
 
+
+  const url = `${process.env.NEXT_PUBLIC_URL}api/stream?videoId=${video.Video}`;
+  const video_Image = `${process.env.NEXT_PUBLIC_URL}Thumbnails/${video.Image}`;
+  
+  const handleDownload = async () => {
+    if (online) {
+      setDownloading(true)
+      try {
+        const registration = await navigator.serviceWorker.ready;
+  
+        // Envoi du message au service worker avec toutes les données du vidéo
+        registration.active.postMessage({
+          type: 'CACHE_VIDEO',
+          url: url,
+          video_Image: video_Image,
+          Body: video.Body,
+          Cat: video.Cat,
+          CatPage: video.CatPage,
+          Categorie: video.Categorie,
+          Category: video.Category,
+          Channel: video.Channel,
+          Cover: video.Cover,
+          Created_at: video.Created_at,    
+          Hours: video.Hours,        
+          ID: video.ID,
+          Image: video.Image,       
+          Likes: video.Likes, 
+          Mail: video.Mail, 
+          NextVideo: video.NextVideo, 
+          PageName: video.PageName, 
+          PageCreated: video.PageCreated,
+          Photo: video.Photo,
+          Short: video.Short,
+          Title: video.Title,
+          User: video.User,
+          UserId: video.UserId,
+          Uuid: video.Uuid,
+          Video: video.Video,
+          Views: video.Views,
+          Visible: video.Visible,
+          uniid: video.uniid,
+        });
+  
+        setDownloading(false)
+      } catch (error) {
+        console.error('Error downloading video or image:', error);
+      }
+    }
+  };
+  
+
+
   const videoUrl = `${process.env.NEXT_PUBLIC_URL}/Watch?v=${video.uniid}`;
 
   const shareOnFacebook = () => {
@@ -224,11 +294,19 @@ function Describe({ video }) {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
                 </svg>
               </div>
-              <div title='Download' className="telecharger p-3 h-[45px] text-white bg-blue-500 hover:bg-blue-700 rounded-[50%] lg:text-base text-[13px] duration-300 " >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 cursor-pointer">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                </svg>
-              </div>
+              {downloading ? (
+                  <div title='Downloading.......'className="telecharger p-3 h-[45px] text-white bg-blue-500 hover:bg-blue-700 rounded-[50%] lg:text-base text-[13px] duration-300 " >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 cursor-pointer">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                      </svg>
+                  </div>
+              ) : (
+                    <div title='Download' onClick={handleDownload} className="telecharger p-3 h-[45px] text-white bg-blue-500 hover:bg-blue-700 rounded-[50%] lg:text-base text-[13px] duration-300 " >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 cursor-pointer">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                      </svg>
+                    </div>
+                   )}
             </div>
 
           </div>

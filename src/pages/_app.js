@@ -17,11 +17,35 @@ import { useRouter } from 'next/router'
 import Load from '@/components/Load'
 import Head from 'next/head'
 import Script from 'next/script'
-import LightMode from '@/components/Theme/Mode'
 export default function App({ Component, pageProps }) {
   const [blur, setBlur] = useState(false)
   const [load, setLoad] = useState(true)
   const router = useRouter();
+  const [online, setOnline] = useState(true);
+  
+  useEffect(()=>{
+    const handleOnlineStatusChange = () =>{
+      setOnline(navigator.onLine);
+    };
+
+    window.addEventListener('online',handleOnlineStatusChange);
+    window.addEventListener('offline',handleOnlineStatusChange);
+    setOnline(navigator.onLine);
+    return () =>{
+      window.removeEventListener('online' ,handleOnlineStatusChange);
+      window.removeEventListener('offline',handleOnlineStatusChange);
+    }
+
+  },[online]);
+
+useEffect(() => {
+  if(!online){
+  router.push('/downloads');
+  }
+  else{
+   }
+},[online,router]);
+
   useEffect(() => {
     const handleRouteChange = (url) => {
       setLoad(true)
@@ -52,8 +76,7 @@ export default function App({ Component, pageProps }) {
         navigator.serviceWorker
           .register('/service-worker.js')
           .then(registration => {
-            console.log('Service Worker registration successful with scope: ', registration.scope);
-          })
+            })
           .catch(err => {
             console.log('Service Worker registration failed: ', err);
           });
