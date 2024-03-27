@@ -4,6 +4,16 @@ import { transporter } from "@/Config/Email";
 import * as z from 'zod'
 import executeQuery from "@/Config/db4";
 
+const generateRandomString = (long) => {
+  const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < long; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+};
+
+
 const registerValidator=z.object({
   userName:z
     .string()
@@ -49,7 +59,6 @@ export default async function handler(req, res) {
     
            // Retourner true si l'email est unique, false sinon
            let mess=""
-           console.log('user:',rows)
            if(rows[0]==null){
             mess="true"
             console.log("2:MAil n'existe pas")
@@ -69,7 +78,7 @@ export default async function handler(req, res) {
         const userPrenom=req.body.prenom
         const userMail=req.body.mail
         const userPassword=req.body.password
-        const uniid = uuidv4()
+        const uniid = userName.toLowerCase()+'_'+generateRandomString(4)
         const uName=userName+' '+userPrenom
 
         const isUnique=await checkEmailUniqueness(userMail);
