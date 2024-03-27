@@ -68,7 +68,7 @@ function Cached({ video }) {
 
   return (
     <>
-      <div className="video1 flex flex-row w-full justify-between md:px-6 mb-6 cursor-pointer" onClick={handlePlayVideo}>
+      <div className="video1 flex flex-row w-full justify-between md:px-6 mb-6 cursor-pointer" >
         <div className="flex flex-col m-0 md:flex-row h-[260px] md:h-[150px] bg-gray-100 space-x-1 md:space-x-5 w-[100%] md:w-[80%] md:rounded-2xl">
           <div className=" w-[250px] h-[210px] md:h-[150px] md:rounded-2xl overflow-hidden">
             <Link href={`/Watch?v=${video.uniid}`}>

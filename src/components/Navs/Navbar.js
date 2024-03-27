@@ -138,7 +138,7 @@ function Navbar(props) {
     }
     const fetchProfile = async (photo) => {
       try {
-        if (photo && !online) {
+        if (photo && online) {
           const cache = await caches.open('mon-site-logo')
           const response = await cache.match(`/Thumbnails/${photo}`);
           const blob = await response.blob();
@@ -297,10 +297,10 @@ function Navbar(props) {
                 <button ref={compoRef} id="image" className="p-0 w-[2.5rem] h-[2.5rem] md:w-[3rem] md:h-[3rem] lg:w-[2.8rem] lg:h-[2.8rem] rounded-full ">
                   {auto.session.Photo ?
                     <Image width={500} height={500} className="w-full h-full rounded-full" title={`${auto.session.PageName}`}
-                      src={online || !profBlobUrl ? `${process.env.NEXT_PUBLIC_URL}/Thumbnails/${auto.session.Photo}`:profBlobUrl} alt='profile' onClick={() => handleAcPop()} />
+                      src={!online || !profBlobUrl ? `${process.env.NEXT_PUBLIC_URL}/Thumbnails/${auto.session.Photo}`:profBlobUrl} alt='profile' onClick={() => handleAcPop()} />
                     :
                     <Image width={500} height={500} className="-full h-full rounded-full" title={`${auto.session.PageName}`}
-                      src={online || !profBlobUrl ? "/img/logo.png":profBlobUrl} alt='profile' onClick={() => handleAcPop()} />
+                      src={!online || !profBlobUrl ? "/img/logo.png":profBlobUrl} alt='profile' onClick={() => handleAcPop()} />
                   }
                 </button>
               </div>

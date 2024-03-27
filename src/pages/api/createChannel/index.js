@@ -12,6 +12,15 @@ export const config = {
   },
 };
 
+const generateRandomString = (long) => {
+  const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < long; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+};
+
 const thumbnailsFolderPath = path.join(process.env.NEXT_UPLOADS_FOLDERS, '/Thumbnails');
 
 const saveChannel = z.object({
@@ -117,10 +126,10 @@ async function moveImage(image, fields) {
 async function insertImage(photo, fields) {
   try {
     const { pageName, descriptio, category, userId } = fields;
-
+    const uniid = pageName.toLowerCase()+'-'+generateRandomString(3)
     // Exécuter la requête SQL pour récupérer les vidéos
     const result = await executeQuery(`CALL createChannel(?,?,?,?,?,?)`, [
-      uuidv4(),
+      uniid,
       userId,
       pageName,
       descriptio,

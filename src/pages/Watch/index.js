@@ -1,7 +1,7 @@
 import Player from '@/components/Player/Player'
 import Title from '@/components/Title'
 import React,{useEffect} from 'react'
-function WatchPage() {
+function WatchPage({fqdn}) {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -19,9 +19,25 @@ function WatchPage() {
   return (
     <>
       <Title title='Watch - TeramaFlix' />
-      <Player />
+      <Player fqdn={fqdn}/>
     </>
   )
 }
 
 export default WatchPage
+
+export async function getServerSideProps(context) {
+  const { req } = context;
+  
+  // Récupérer le nom de domaine à partir de l'en-tête Host de la requête
+  const hostname = req.headers.host;
+  
+  // Maintenant, hostname contient le FQDN
+  
+  // Vous pouvez transmettre le FQDN comme une prop à votre composant React
+  return {
+    props: {
+      fqdn: hostname,
+    }
+  };
+}

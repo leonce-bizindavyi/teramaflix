@@ -7,7 +7,7 @@ import MyVideos from './MyVideos'
 import UnDescribe from './UnDescribe'
 import { LoadContext } from '../context/loading'
 
-function PlayVideo() {
+function PlayVideo({fqdn}) {
   const auto = useContext(SessionContext)
   const {setLoad} = useContext(LoadContext)
   const {video} = useContext(VideoContext)
@@ -19,7 +19,7 @@ function PlayVideo() {
     <>
       <div id="played" className="dark:bg-medium video lg:w-[65%] w-full ">
        <><Watching videoprops={video} /> 
-       {!auto.session || auto.session === "unlogged" ? <UnDescribe  video={video}/> : <Describe video={video}/>} </> 
+       {!auto.session || auto.session === "unlogged" ? <UnDescribe  video={video}/> : <Describe video={video} fqdn={fqdn} />} </> 
        <MyVideos />
     </div>  
     </>

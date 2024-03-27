@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/router'
 import CommentBloc from './CommentBloc'
 
-function Describe({ video }) {
+function Describe({ video,fqdn }) {
   const router = useRouter()
   const auto = useContext(SessionContext)
   const period = usePeriod(video.Created_at)
@@ -165,8 +165,8 @@ function Describe({ video }) {
 
 
 
-  const url = `${process.env.NEXT_PUBLIC_URL}api/stream?videoId=${video.Video}`;
-  const video_Image = `${process.env.NEXT_PUBLIC_URL}Thumbnails/${video.Image}`;
+  const url = `${process.env.NEXT_PUBLIC_HTTP+fqdn}/api/stream?videoId=${video.Video}`;
+  const video_Image = `${process.env.NEXT_PUBLIC_HTTP+fqdn}/Thumbnails/${video.Image}`;
   
   const handleDownload = async () => {
     if (online) {
@@ -253,7 +253,6 @@ function Describe({ video }) {
       setCopied(true)
     }
   };
-
 
   return (
     <>
