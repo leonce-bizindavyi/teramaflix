@@ -73,7 +73,7 @@ function Navbar(props) {
 
   const fetchSearches = async (search) => {
     if (search !== '') {
-      const response = await fetch('/api/results/', {
+      const response = await fetch('/api/results/tape', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -405,7 +405,7 @@ function Navbar(props) {
       {acPop ? <AcountPop auto={auto.session} /> : null}
       {searchd == "" ? null :
         <>
-          <SearchDrop searches={searches} searched={searchd} />
+          <SearchDrop searches={searches} />
           <SmDrop searches={searches} searched={searchd} />
         </>
       }

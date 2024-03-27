@@ -86,7 +86,7 @@ function Videos() {
     hasMore={hasMore}
     loader={online && <h4>Loading...</h4>}
     endMessage={
-      <p style={{textAlign:"center"}}><b>You have seen it all</b></p>
+      <p className='dark:text-white' style={{textAlign:"center"}}><b>You have seen it all</b></p>
     }>      
       <div className="moreVideo flex flex-col space-y-2 rounded pt-16 lg:pt-12  overflow-y-hidden  ">
       

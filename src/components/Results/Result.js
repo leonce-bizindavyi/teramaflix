@@ -8,7 +8,7 @@ function Result({ video }) {
     <>
       <div className="video1 flex flex-row w-full  justify-between md:px-6 mb-6 cursor-pointer ">
         <div className="dark:bg-slate-700 flex flex-col m-0 md:flex-row h-[260px] md:h-[150px]    bg-gray-100 space/-x-1 md:space-x-5 w-[100%] md:w-[80%] md:rounded-2xl  ">
-          <div className=" bg-gray-200   w-full md:w-[250px] h-[210px] md:h-[130px] md:h-[150px] md:rounded-2xl   overflow-hidden">
+          <div className=" bg-gray-200   w-full md:w-[250px] h-[210px] md:h-[150px] md:rounded-2xl   overflow-hidden">
             {
               video.Short == 1 ?
                 <Link href={`/short`}>

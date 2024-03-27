@@ -38,13 +38,6 @@ export default function App({ Component, pageProps }) {
 
   },[online]);
 
-useEffect(() => {
-  if(!online){
-  router.push('/downloads');
-  }
-  else{
-   }
-},[online,router]);
 
   useEffect(() => {
     const handleRouteChange = (url) => {

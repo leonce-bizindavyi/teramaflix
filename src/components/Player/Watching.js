@@ -241,7 +241,7 @@ function Watching({ videoprops }) {
           count++;
         }
       }
-    }, 1250);
+    }, 1100);
 
     const handleRouteChange = (url, { shallow }) => {
       if (!shallow) {

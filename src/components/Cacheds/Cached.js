@@ -3,7 +3,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 function Cached({ video }) {
-  console.log('video cache:', video);
   const [online, setOnline] = useState(true);
   const [thumbnailUrl, setThumbnailUrl] = useState(null);
   const [profBlobUrl, setProfBlobUrl] = useState(null);
@@ -66,23 +65,6 @@ function Cached({ video }) {
 
 
   
-  const handlePlayVideo = async () => {
-    if (!online && video && video.Video) {
-      try {
-        const cache = await caches.open('downloaded-videos-cache');
-        const response = await cache.match(`/Videos/${video.Video}`);
-        if (response) {
-          const blob = await response.blob();
-          const videoUrl = URL.createObjectURL(blob);
-          // Maintenant, vous pouvez lire la vidéo à partir de videoUrl
-          console.log('Video URL:', videoUrl);
-          // Mettez en œuvre votre propre logique pour lire la vidéo ici
-        }
-      } catch (error) {
-        console.error('Error fetching video from cache:', error);
-      }
-    }
-  };
 
   return (
     <>
