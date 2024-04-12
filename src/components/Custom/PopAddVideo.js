@@ -41,7 +41,7 @@ function PopAddVideo(props) {
           }
         </label>
         <input type="file" id="file" className="hidden ml-10" accept="video/*" multiple onChange={handleFileChange} />
-        <button className="btn-addvid-closer absolute top-2 right-3" >
+        <button onClick={()=>props.handleaddvid(false)} className="btn-addvid-closer absolute top-2 right-3" >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="drop-video-closer w-6 h-6 text-white cursor-pointer">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>

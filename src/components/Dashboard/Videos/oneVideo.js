@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import Image from "next/image";
-import { useState, useEffect } from 'react'
 import ImageComp from '@/components/ImageComp';
 
 function truncateText(text, maxLength) {
@@ -11,8 +10,6 @@ function truncateText(text, maxLength) {
 }
 
 function OneVideo({ video, handleClick }) {
-
-
   return (
     <>
       <div className="videocontainer ">
@@ -21,8 +18,8 @@ function OneVideo({ video, handleClick }) {
             <ImageComp src={video.Image} w={800} h={800} a={'video'} />
           </Link>
         </div>
-
-        <Link href="">
+        <h1 title={video.Title} className="dark:text-white font-bold text-slate-900 text-lg ml-2 mb-2 sm:ml-0">{truncateText(video.Title, 25)}</h1>
+        <Link href={`/dashboard/users?user=${video.Uuid}`}>
           <div className="flex space-x-2 items-center justify-start mb-4">
             {
               video.Photo ?
@@ -39,15 +36,13 @@ function OneVideo({ video, handleClick }) {
             }
             <div className="flex flex-col  space-y-2">
               <div className="right-1">
-                <h10 title={video.Title} className="text-sm font-medium">{truncateText(video.Title, 25)}</h10>
+                <h10 title={video.PageName} className="text-sm font-medium">{truncateText(video.PageName, 25)}</h10>
                 <span className="text-sm mt-2"> {video.Nom} </span>
               </div>
             </div>
           </div>
         </Link>
-
       </div>
-
     </>
   )
 }

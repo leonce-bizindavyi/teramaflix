@@ -25,14 +25,16 @@ export default async function uploadHandler(req, res) {
                 console.error(err);
                 return res.status(500).json({ error: 'Une erreur s\'est produite lors de l\'upload des images.' });
             }
-
             // Récupérez les informations des fichiers uploadés
             const images = Array.isArray(files.image) ? files.image : [files.image];
             const movePromises = images.map(async (image) => {
                 if (!image) {
-                    res.status(500).json({ error: 'Une erreur s\'est produite lors de l\'upload des images.' });
+                    await insertVideo(0, fields)
+                    res.status(200).json({ message: true });
                 }
-                await moveImage(image, fields)
+                else {
+                    await moveImage(image, fields)
+                }
             });
             try {
                 await Promise.all(movePromises);
@@ -57,11 +59,10 @@ async function moveImage(image, fields) {
         const oldPath = image.filepath;
         const newFilename = image.newFilename + '.png';
         const newPath = path.join(thumbnailsFolderPath, newFilename);
-        const parsedPath = path.parse(fields.title);
-        const title = parsedPath.name;
         await fs.ensureDir(path.dirname(newPath));
         await fs.move(oldPath, newPath);
-        const post = await insertVideo(newFilename, fields, title);
+        await deleteIfExists(path.join(thumbnailsFolderPath, fields.oldimge));
+        const post = await insertVideo(newFilename, fields);
         return post;
     } catch (error) {
         console.error(error);
@@ -69,16 +70,39 @@ async function moveImage(image, fields) {
     }
 }
 
-async function insertVideo(image, fields, title) {
-    const { desc, cat, video, short, user } = fields;
+async function insertVideo(image, fields) {
+    const { desc, cat, video, user } = fields;
+    const parsedPath = path.parse(fields.title);
+    const title = parsedPath.name;
     try {
-        // Exécutez la requête SQL pour insérer une vidéo dans la base de données
-        const rows = await executeQuery('UPDATE posts SET Title = ?, Image = ?, Categorie =?, Body = ?, User = ?, Short = ?, Visible = ? WHERE Video = ?', [title, image, cat, desc, user, short, 1, video]);
-        // Autres opérations après l'insertion de la vidéo
-        return rows
+        if (image === 0) {
+            // Exécutez la requête SQL pour insérer une vidéo dans la base de données
+            const rows = await executeQuery('UPDATE posts SET Title = ?,  Categorie =?, Body = ?, User = ?, Visible = ? WHERE Video = ?', [title,  cat, desc, user, 0, video]);
+            // Autres opérations après l'insertion de la vidéo
+            return rows
+        } else {
+            // Exécutez la requête SQL pour insérer une vidéo dans la base de données
+            const rows = await executeQuery('UPDATE posts SET Title = ?, Image = ?, Categorie =?, Body = ?, User = ?, Visible = ? WHERE Video = ?', [title, image, cat, desc, user, 0, video]);
+            // Autres opérations après l'insertion de la vidéo
+            return rows
+        }
+
     } catch (error) {
         console.error(error);
         // Gérer l'erreur ici
         throw error; // Propager l'erreur pour que Promise.all le capture
+    }
+}
+
+// Fonction utilitaire pour supprimer un fichier s'il existe
+async function deleteIfExists(filePath) {
+    try {
+        await fs.access(filePath); // Vérifie l'existence du fichier
+        await fs.unlink(filePath); // Supprime le fichier
+    } catch (error) {
+        // Ignore les erreurs si le fichier n'existe pas
+        if (error.code !== 'ENOENT') {
+            console.log(error);
+        }
     }
 }

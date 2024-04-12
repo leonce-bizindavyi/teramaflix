@@ -5,6 +5,8 @@ import AllVideoSearch from './allVideoSearch';
 import { useState,useEffect} from 'react';
 import MyContext from './Context';
 import Title from '@/components/Title';
+import InfiniteScroll from "react-infinite-scroll-component";
+import LoadData from '../../Loading/LoadData';
 
 function Videos(props){
     const [isDeleted, setDeleted] = useState(false);
@@ -12,6 +14,7 @@ function Videos(props){
     const [uniid, setUniid] = useState(props.uniid)
     const [searchd, setSearchd] = useState("")
     const [searches, setSearches] = useState([])
+    const [hasMore, setHasMore] = useState(true)
 
     const handleAsides = (uuid) =>{
       setUniid(uuid)
@@ -23,9 +26,9 @@ function Videos(props){
     
   useEffect(() => {
       const AllPosts = async ()=>{
-        const response = await fetch(`/api/videos/allVideo/${uniid}`)
-        const data =await response.json()
-        setVideo(data)
+      const response = await fetch(`/api/videos/allVideo/${uniid}/0/4`)
+      const data =await response.json()
+      setVideo(data)
     };
     AllPosts()
   }, [uniid])
@@ -62,6 +65,14 @@ function Videos(props){
           }
         }
       }
+
+    const getMoreVideos = async () => {
+        const res = await fetch(`/api/posts/${0}/${video.length}/4`)
+        const newVideos = await res.json()
+        if (newVideos.length == 0) setHasMore(false)
+        setVideo(videos => [...videos, ...newVideos])
+    }
+
 return(
 <>
 <Title title='Videos' />
@@ -92,6 +103,14 @@ return(
                 </MyContext.Provider>
             </div>
         </div>  
+        <InfiniteScroll
+        dataLength={video.length}
+        next={getMoreVideos}
+        hasMore={hasMore}
+        loader={<LoadData />}
+        endMessage={
+          <p style={{ textAlign: "center" }} className='p-2 dark:text-white'><b>You have seen it all</b></p>
+        }>
         {searchd == "" ? 
         <MyContext.Provider value={{handleLinkClick,video}}>
         <AllVideo handleAsides={handleAsides} /> 
@@ -100,7 +119,8 @@ return(
         <MyContext.Provider value={{handleLinkClick}}>
         <AllVideoSearch searches={searches}  searched={searchd}  handleAsides={handleAsides} /> 
         </MyContext.Provider>
-        }          
+        }     
+        </InfiniteScroll>     
     </div>
   </div>
 </>

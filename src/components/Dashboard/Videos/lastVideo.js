@@ -36,9 +36,8 @@ function LastVideo({ uniid }) {
   const { handledelete, isDeleted } = useContext(MyContext);
   const [message, setMessage] = useState('');
   const [allMessage, setallMessage] = useState([]);
+  const [adding, setAdding] = useState(false)
   let video = LastPost({ uniid, setallMessage });
-  const [videoBlobUrl, setVideoBlobUrl] = useState('');
-  const [profBlobUrl, setProfBlobUrl] = useState('/img/logo.png');
 
   const handleClick = async () => {
     await handledelete();
@@ -94,6 +93,19 @@ function LastVideo({ uniid }) {
       handleSendMessage();
     }
   }
+  const handleAddThumb = async ()=>{
+    setAdding(true)
+    const form = new FormData()
+    form.append('video',video.Video)
+    form.append('id',video.ID)
+    const response = await fetch('http://127.0.0.1:5000/addthumb', {
+      method: 'POST',
+      body: form
+    });
+    if(response.ok){
+      setAdding(false)
+    }
+  }
   const handleSendMessage = async (event) => {
     if (message == '') {
       console.log("Vous essayez d'envoyer un message vide!")
@@ -110,16 +122,16 @@ function LastVideo({ uniid }) {
         })
       });
       if (response) {
-        console.log('yes')
         setallMessage([...allMessage, message]);
         setMessage('')
       }
       else {
-        console.log('errk')
+        console.log('error')
       }
     }
 
   }
+
   const videoSrc = `/api/stream?videoId=${video.Video}`;
   return (
     <>
@@ -141,16 +153,18 @@ function LastVideo({ uniid }) {
                 <div className="text-lg sm:text-base lg:text-lg"><span>Likes</span> : <span>{video.Likes}</span></div>
                 <br />
                 <div>
-                  <button id="visible" onClick={handleChangeVisibility} value={video.Visible} className="btnStatu text-base sm:text-sm lg:text-base  xl:text-xl font-semibold cursor-pointer bg-[#3378FF] text-white shadow-xl p-1 xl:p-2 rounded-full">
+                  <button id="visible" onClick={handleChangeVisibility} value={video.Visible} className="btnStatu text-base sm:text-sm lg:text-base  xl:text-xl font-semibold cursor-pointer bg-[#3378FF] hover:bg-blue-700 text-white shadow-xl p-2 xl:p-2 rounded-md">
                     {video.Visible === 1 ? "Show" : "Hide"}</button>
 
-                  <button id="" onClick={handleClick} value={video.uniid} className="ml-2 text-base sm:text-sm lg:text-base xl:text-xl font-semibold cursor-pointer bg-[#3378FF] text-white shadow-xl p-1 xl:p-2 rounded-full">Delete</button>
+                  <button id="" onClick={handleClick} value={video.uniid} className="ml-2 text-base sm:text-sm lg:text-base xl:text-xl font-semibold cursor-pointer bg-[#3378FF] hover:bg-blue-700 text-white shadow-xl p-1 xl:p-2 rounded-md p-2">Delete</button>
+                  <button disabled={adding} onClick={handleAddThumb} value={video.uniid} className="ml-2 text-base sm:text-sm lg:text-base xl:text-xl font-semibold cursor-pointer bg-[#3378FF] hover:bg-blue-700 text-white shadow-xl p-1 xl:p-2 rounded-md p-2">{adding ? "Creating...":"Add Thumbnail"} </button>
                 </div>
               </div>
               <div className=" w-10 h-10 xl:w-14 xl:h-14 rounded-full overflow-hidden">
                 {
                   video.Photo ?
                     <Image width={100} height={100}
+                      title={video.PageName}
                       src={`${process.env.NEXT_PUBLIC_URL}/Thumbnails/${video.Photo}`}
                       priority={true} placeholder='blur'
                       blurDataURL="data:image/png;base64,...(base64-encoded image data)"
@@ -158,8 +172,9 @@ function LastVideo({ uniid }) {
                     :
                     <Image width={100} height={100} src={`/img/logo.png`}
                       priority={true} placeholder='blur'
+                      title={video.PageName}
                       blurDataURL="data:image/png;base64,...(base64-encoded image data)"
-                      className="w-full h-full" alt="profil" />
+                      className="w-full h-full cursor-pointer" alt="profil" />
                 }
               </div>
               <div className="border border-blue-300 rounded-3xl">

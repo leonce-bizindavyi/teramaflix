@@ -48,7 +48,7 @@ function Upload({video}) {
                 <div className="flex flex-col">
                     <h1 className="font-semibold text-[1rem] md:text-[1.5rem]">{video.Title}</h1>
                     <p className="text-sm md:text-base">{video.Body}</p>
-                    <Link href="/profile">
+                    <Link href={`/dashboard/users?user=${video.Uuid}`}>
                         <div className="description flex items-center  text-sm">
                             <Image width={100} height={100} alt='profile' className="lg:w-10 w-8 lg:h-10 h-8 my-1 ml-15 rounded-full " src={profBlobUrl}/>
                             <p className="nom ml-2" >{video.PageName}</p>

@@ -5,8 +5,8 @@ import { createPool } from 'mysql2/promise';
 const pool = createPool({
   host: 'localhost',
   user: 'root',
-  password: 'terama_20819p',
-  database: 'terama_20819u',
+  password: '',
+  database: 'teramaflix',
 });
 
 

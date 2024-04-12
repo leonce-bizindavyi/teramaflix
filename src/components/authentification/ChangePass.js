@@ -64,9 +64,10 @@ function ChangePass() {
                       <label className="block text-gray-700 font-bold mb-2" for="email">
                         Email
                       </label>
-                      <input name="mail" className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email"
-                        type="email" placeholder="enter your email" />
-                      <span className="">  </span>
+                      <input name="mail" onChange={(e)=>setEmail(e.target.value)} value={email}
+                       className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email"
+                        type="email"  placeholder="enter your email" />
+                      <span className="text-red-600"> {errmail} </span>
                     </div>
                     <button onClick={sendLink} name="changemod" className="bg-blue-500 hover:bg-blue-700 text-white p-2 rounded text-sm focus:outline-none focus:shadow-outline" type="submit">
                       Send Link

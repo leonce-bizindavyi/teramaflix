@@ -78,7 +78,7 @@ export default async function handler(req, res) {
         const userPrenom=req.body.prenom
         const userMail=req.body.mail
         const userPassword=req.body.password
-        const uniid = userName.toLowerCase()+'_'+generateRandomString(4)
+        const uniid = (userName.toLowerCase()+'_'+generateRandomString(4)).replace(' ','')
         const uName=userName+' '+userPrenom
 
         const isUnique=await checkEmailUniqueness(userMail);

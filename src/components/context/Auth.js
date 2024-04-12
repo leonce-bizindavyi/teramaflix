@@ -21,11 +21,9 @@ function SessionProvider(props) {
         return setSession('unlogged');
       }
     }
-
-    if (shouldFetch) {
+    
       const token = localStorage.getItem('token');
       decodeJWT(token);
-    }
   }, [shouldFetch]); // Use the simpler variable in the dependency array
 
   return (

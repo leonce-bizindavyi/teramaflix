@@ -13,7 +13,7 @@ function truncateText(text, maxLength) {
   return text;
 }
 
-function EditVideo({ uuid, video, handleaddvid }) {
+function EditVideo({ uuid,setDrag, video }) {
   const router = useRouter()
   const videoRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -21,8 +21,8 @@ function EditVideo({ uuid, video, handleaddvid }) {
   const [editor, setEditor] = useState(null);
   const [photo, setPhoto] = useState(null)
   const [annulation_recadrage, setAnnulation_recadrage] = useState(false);
-  const [short, setShort] = useState(0)
   const [image, setImage] = useState(null)
+  const [uploading, setUploading] = useState(false)
   const [clickedNext, setClickedNext] = useState(false)
   const auth = useContext(SessionContext)
   const [formData, setFormData] = useState({});
@@ -31,12 +31,7 @@ function EditVideo({ uuid, video, handleaddvid }) {
   }, [video])
 
   const handleNext = () => {
-    if (videoRef.current && formData.Body) {
-      if (videoRef.current.duration < 80 && videoRef.current.videoWidth < videoRef.current.videoHeight) {
-        setShort(1)
-      } else {
-        setShort(0)
-      }
+    if (formData.Body && formData.Title) {
       setClickedNext(true)
     }
   }
@@ -74,14 +69,15 @@ function EditVideo({ uuid, video, handleaddvid }) {
   };
 
   const handleSubmit = async () => {
+    setUploading(true)
     const form = new FormData()
     form.append('title', formData.Title)
     form.append('desc', formData.Body)
     form.append('cat', formData.Categorie)
     form.append('user', formData.User)
     form.append('image', photo)
-    form.append('short', short)
     form.append('video', formData.Video)
+    form.append('oldimge', formData.Image)
     const response = await fetch('/api/upload/edit', {
       method: 'POST',
       body: form
@@ -97,18 +93,26 @@ function EditVideo({ uuid, video, handleaddvid }) {
   if (clickedNext) {
     return (
       <div className='absolute rounded-md flex flex-col  justify-center items-center space-y-4  right-0 top-5 lg:w-[80%] w-full h-max bg-gray-200 p-4 py-10 '>
-        <div class="  w-[300px] h-[170px] rounded  overflow-hidden">
-          {croppedImage && (
-            <div class="imag w-[100%] h-[170px]  ">
+        <div className="  w-[300px] h-[170px] rounded  overflow-hidden">
+          {croppedImage ?
+            <div className="imag w-[100%] h-[170px]  ">
               <Image width={500} height={500}
                 src={croppedImage}
                 className="w-[100%] h-[100%] object-cover"
                 alt="thumb"
               />
             </div>
-          )}
+          :
+          <div className="imag w-[100%] h-[170px]  ">
+              <Image width={500} height={500}
+                src={`${process.env.NEXT_PUBLIC_URL}/Thumbnails/${video.Image}`}
+                className="w-[100%] h-[100%] object-cover"
+                alt="thumb"
+              />
+            </div>
+            }
         </div>
-        <div class="detail-details flex flex-col  space-y-2 ">
+        <div className="detail-details flex flex-col  space-y-2 ">
           <span className='font-semibold text-md'>Title : <span className='font-normal ' title={`${formData.Title}`}> {truncateText(formData.Title, 40)}</span></span>
           <span className='font-semibold text-md'>Date : <span className='font-normal '>{formData.Created_at}</span> </span>
           <div>
@@ -127,13 +131,9 @@ function EditVideo({ uuid, video, handleaddvid }) {
           </button>
           <button onClick={() => {
             handleSubmit()
-          }} className="bg-blue-500 p-3 text-white rounded font-semibold ">Upload</button>
+          }} disabled={uploading} className="bg-blue-500 p-3 text-white rounded font-semibold ">{uploading ? 'Uploading...': 'Upload'}</button>
         </div>
-        <button className="btn-addvid-closer absolute top-1 right-4" onClick={() => handleaddvid(false)}>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="drop-video-closer w-6 h-6 text-blue-500 cursor-pointer">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        
       </div>
     )
 
@@ -177,7 +177,9 @@ function EditVideo({ uuid, video, handleaddvid }) {
 
                 <input className='hidden' accept="image/*"
                   onChange={(e) => { handleImageChange(e) }} type="file" id="thumnail" />
+                  <div className='flex lg:flex-row flex-col space-y-2 lg:space-x-2'>
                 {croppedImage && (
+                  <>
                   <div className="imag w-[100%] h-[170px] rounded overflow-hidden">
                     <Image width={500} height={500}
                       src={croppedImage}
@@ -185,18 +187,31 @@ function EditVideo({ uuid, video, handleaddvid }) {
                       alt="thumb"
                     />
                   </div>
+                </>
                 )}
+                 {
+                    video.Image && (
+                      <div className="imag w-[100%] h-[170px] rounded overflow-hidden">
+                      <Image width={500} height={500}
+                        src={`${process.env.NEXT_PUBLIC_URL}/Thumbnails/${video.Image}`}
+                        className="w-[100%] h-[100%] object-cover"
+                        alt="thumb"
+                      />
+                    </div>
+                    )
+                  }
+                </div>
                 {
                   image && annulation_recadrage && (
                     <div className='flex items-center justify-center'>
-                      <div className='absolute mb-[9rem] bg-gray-200 border-2 border-blue-500 rounded-md'>
+                      <div className='fixed top-16 bg-gray-200 border-2 border-blue-500 rounded-md'>
                         <AvatarEditor
                           ref={(editorInstance) => setEditor(editorInstance)}
                           image={image}
                           width={455}
                           height={270}
                           border={80}
-                          color={[245, 245, 245, 0.6]} // Couleur de fond (blanc transparent)
+                          color={[245, 245, 245, 1.0]} // Couleur de fond (blanc transparent)
                           scale={scale}
                           rotate={0}
                         />
@@ -213,7 +228,7 @@ function EditVideo({ uuid, video, handleaddvid }) {
                             />
                             <span>{scale}</span>
                           </div>
-                          <div className='flex justify-between px-5 items-center'>
+                          <div className='flex justify-center px-5 items-center space-x-16'>
                             <button className='hover:bg-blue-700 text-white  w-[4.5rem] h-[1.7rem] bg-blue-600 rounded-sm ' onClick={handleCrop}>
                               Recadrer
                             </button>
@@ -227,9 +242,6 @@ function EditVideo({ uuid, video, handleaddvid }) {
                   )
                 }
               </div>
-
-
-
             </div>
             <div className="detail md:w-[40%] flex flex-col space-y-6 items-center">
               <div className="  h-[170px]">
@@ -248,7 +260,7 @@ function EditVideo({ uuid, video, handleaddvid }) {
                   </>
                   :
                   <>
-                    <div class="w-6 h-6 border-4 border-dashed rounded-full animate-spin border-blue-600"></div>
+                    <div className="w-6 h-6 border-4 border-dashed rounded-full animate-spin border-blue-600"></div>
                     {video.percent === 100 && (<span>Processing...</span>)}
                     {video.percent === 0 ?
                       <span>Waiting...</span>
@@ -270,13 +282,13 @@ function EditVideo({ uuid, video, handleaddvid }) {
           <div className='w-full flex justify-center'>
             <button className='border-none p-3 flex flex-row space-x-1 text-blue-500 bg-white rounded-lg' onClick={() => { handleNext() }}  >
               <span>Next</span>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
                 <path fill-rule="evenodd" d="M12.97 3.97a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 1 1-1.06-1.06l6.22-6.22H3a.75.75 0 0 1 0-1.5h16.19l-6.22-6.22a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
               </svg>
 
             </button>
           </div>
-          <button className="btn-addvid-closer absolute top-3 right-4" onClick={() => handleaddvid(false)}>
+          <button className="btn-addvid-closer absolute top-3 right-4" onClick={() => setDrag(false)}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="drop-video-closer w-6 h-6 text-blue-500 cursor-pointer">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>

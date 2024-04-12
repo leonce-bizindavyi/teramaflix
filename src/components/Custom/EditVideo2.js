@@ -25,8 +25,10 @@ function EditVideo({ uuid }) {
     id: "",
     image: null,
     video: "",
-    oldimage: ""
+    oldimage: "",
+    short: ""
   });
+  const [saving, setSaving] = useState(false)
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -74,6 +76,7 @@ function EditVideo({ uuid }) {
             id: data.ID,
             oldimage: data.Image,
             video: data.Video,
+            short: data.Short
           }));
         }
       };
@@ -95,6 +98,7 @@ function EditVideo({ uuid }) {
 
   const handleSubmit = async () => {
     if (videoRef.current) {
+      setSaving(true)
       const form = new FormData()
       form.append('title', formData.title)
       form.append('desc', formData.desc)
@@ -103,12 +107,7 @@ function EditVideo({ uuid }) {
       form.append('id', formData.id)
       form.append('image', photo)
       form.append('oldimage', formData.oldimage)
-      if (!isNaN(videoRef.current.duration)) {
-        if (videoRef.current.duration > 80 && videoRef.current.videoWidth < videoRef.current.videoHeight) {
-          form.append('short', 1)
-        } else {
-          form.append('short', 0)
-        }
+      form.append('short', formData.short)
         if (formData.cat, formData.title) {
           const response = await fetch('/api/posts/addPost', {
             method: 'POST',
@@ -117,9 +116,9 @@ function EditVideo({ uuid }) {
           // Vérifier si la création de l'utilisateur a réussi
           if (response.ok) {
             const post = await response.json();
+            setSaving(false)
             if (post.Success) {
-              //router.push('/upload')
-              console.log(post)
+              router.push('/upload')
             }
             // Réinitialiser le formulaire
             setFormData({
@@ -128,7 +127,7 @@ function EditVideo({ uuid }) {
             })
             setFormData({ ...formData, desc: "" })
             setFormData({ ...formData, cat: "" })
-            setFormData({ ...formData, image: null }) 
+            setFormData({ ...formData, image: null })
           } else {
             console.error(`Failed to create user: ${response.status} ${response.statusText}`);
           }
@@ -136,11 +135,11 @@ function EditVideo({ uuid }) {
         // Envoyer les données à l'API pour les insérer dans la base de données
 
 
-          
+
       }
 
     }
-  }
+  
 
   const videoSrc = `/api/stream?videoId=${formData.video}`;
 
@@ -204,10 +203,12 @@ function EditVideo({ uuid }) {
               </>
             }
 
-            {
+           
+          </div>
+          {
               image && annulation_recadrage && (
                 <div className='flex items-center justify-center'>
-                  <div className='absolute mb-[9rem] bg-gray-200 border-2 border-blue-500 rounded-md'>
+                  <div className='fixed top-16  bg-gray-200 border-2 border-blue-500 rounded-md'>
                     <AvatarEditor
                       ref={(editorInstance) => setEditor(editorInstance)}
                       image={image}
@@ -231,7 +232,7 @@ function EditVideo({ uuid }) {
                         />
                         <span>{scale}</span>
                       </div>
-                      <div className='flex justify-between px-5 items-center'>
+                      <div className='flex justify-center space-x-16 items-center'>
                         <button className='hover:bg-blue-700 text-white  w-[4.5rem] h-[1.7rem] bg-blue-600 rounded-sm ' onClick={handleCrop}>
                           Recadrer
                         </button>
@@ -244,15 +245,15 @@ function EditVideo({ uuid }) {
                 </div>
               )
             }
-          </div>
-
-          <button onClick={handleSubmit} className="bg-blue-500 w-[5rem] p-2 text-white rounded mr-5">save</button>
+          <button onClick={handleSubmit} disabled={saving} className="bg-blue-500 w-[5rem] p-2 text-white rounded mr-5">
+            {saving ? 'Updating' : 'Update'}
+          </button>
 
         </div>
         <div className="detail md:w-[50%] flex flex-col space-y-6 items-center">
           <div className="  h-[170px]">
             <div className="imag w-[100%] h-[170px] rounded  overflow-hidden">
-              <video ref={videoRef} src={videoSrc} className="w-[100%]  h-[100%] object-cover" alt="" controls />
+              <video ref={videoRef} src={videoSrc} className="w-[100%]  h-[100%] object-cover" alt="" controls autoPlay />
             </div>
           </div>
           <div className="detail-details flex flex-col  space-y-2 ">
