@@ -67,7 +67,7 @@ function Videos(props){
       }
 
     const getMoreVideos = async () => {
-        const res = await fetch(`/api/posts/${0}/${video.length}/4`)
+        const res = await fetch(`/api/videos/allVideo/${uniid}/${video.length}/4`)
         const newVideos = await res.json()
         if (newVideos.length == 0) setHasMore(false)
         setVideo(videos => [...videos, ...newVideos])

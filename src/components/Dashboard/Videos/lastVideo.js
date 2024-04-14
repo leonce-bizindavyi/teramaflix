@@ -98,7 +98,7 @@ function LastVideo({ uniid }) {
     const form = new FormData()
     form.append('video',video.Video)
     form.append('id',video.ID)
-    const response = await fetch('http://127.0.0.1:5000/addthumb', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/apis/addthumb`, {
       method: 'POST',
       body: form
     });

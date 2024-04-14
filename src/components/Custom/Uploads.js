@@ -7,7 +7,6 @@ function truncateText(text, maxLength) {
 }
 
 function Upload({ videos, handleEdit, handleRemoveUpload }) {
-  console.log(videos[0].percent)
   const deletePost = async (id, video, image) => {
     const response = await fetch(`/api/posts/deletePost/${id}/${video}/${image}`)
     const data = await response.json()

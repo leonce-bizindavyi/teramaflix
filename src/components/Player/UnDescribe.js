@@ -116,7 +116,7 @@ function UnDescribe({ video }) {
     <>
       <div id="description">
         <div className="description  pb-4 px-[3%] lg:px-0 w-full border-b-[2px] ">
-          <div className="p-[2%] pl-0 lg:text-[22px] text-[18px] font-semibold">{video.Title}</div>
+          <div className="p-[2%] pl-0 lg:text-[22px] text-[18px] font-semibold truncate truncate-overflow ">{video.Title}</div>
           <div className="reaction flex flex-col justify-between  space-y-2  text-white">
             <div className="vuesAndDate flex flex-row space-x-2">
               <div className="vues  text-black space-x-1 lg:text-base text-[13px] flex flex-row justify-center">

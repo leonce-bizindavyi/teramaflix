@@ -70,7 +70,6 @@ function UploadDrop() {
       xhr.upload.addEventListener('progress', (event) => {
         if (event.lengthComputable) {
           const percentage = Math.round((event.loaded / event.total) * 100);
-          console.log(percentage)
           // Update the percent attribute of the corresponding video
           setUploads(prevUploads =>
             prevUploads.map(upload =>
@@ -83,7 +82,7 @@ function UploadDrop() {
         }
       });
 
-      xhr.open('POST', `http://127.0.0.1:5000/upload`, true);
+      xhr.open('POST', `${process.env.NEXT_PUBLIC_URL}/apis/upload`, true);
 
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4 && xhr.status === 200) {
